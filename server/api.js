@@ -168,16 +168,19 @@ router.post('/reservations', function(req, res) {
 
 router.get('/reservations', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
-    res.status(200).json({
-        reservations: [{
-            title: 'Mr',
-            firstname: 'Laurie',
-            surname: 'Ainley',
-            email: 'laurie@ainley.com',
-            roomId: 1,
-            checkInDate: '2017-10-10',
-            checkOutDate: '2017-10-17'
-        }]
+    // the search by name is done through using surname
+    let sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
+               reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
+               FROM customers
+               INNER JOIN reservations 
+               on customers.id = reservations.customer_id
+               WHERE customers.id = ? OR customers.surname = ?`;
+    db.all(sql, [req.query.id, req.query.name], (err, reservation) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ reservations: reservation });
+        }
     });
 });
 
