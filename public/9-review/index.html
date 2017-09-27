@@ -1,85 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-  </head>
-  <body>
-    
+</head>
+
+<body>
+
     <div class="container">
-      <div class="row">
-        <div class="col-10">
-          <h1>Add review</h1>
+        <div class="row">
+            <div class="col-10">
+                <h1>Add review</h1>
+            </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Customer id</th>
-                <th>Room type id</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>Review date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <input id="customerId" type="text" class="form-control" placeholder="Customer id" name="customerId" />
-                </td>
-                <td><input id="roomTypeId" type="text" class="form-control" placeholder="Room type id" name="roomTypeId" /></td>
-                <td><input id="rating" type="text" class="form-control" placeholder="Rating" name="rating" /></td>
-                <td><input id="comment" type="text" class="form-control" placeholder="Comment" name="comment" /></td>
-                <td><input id="reviewDate" type="text" class="form-control" placeholder="YYYY-MM-DD" name="reviewDate" /></td>
-                <td><button type="submit" class="btn btn-primary fn-submit">Submit review</button></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer id</th>
+                            <th>Room type id</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Review date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input id="customerId" type="text" class="form-control" placeholder="Customer id" name="customerId" />
+                            </td>
+                            <td><input id="roomTypeId" type="text" class="form-control" placeholder="Room type id" name="roomTypeId" /></td>
+                            <td><input id="rating" type="text" class="form-control" placeholder="Rating" name="rating" /></td>
+                            <td><input id="comment" type="text" class="form-control" placeholder="Comment" name="comment" /></td>
+                            <td><input id="reviewDate" type="text" class="form-control" placeholder="YYYY-MM-DD" name="reviewDate" /></td>
+                            <td><button type="submit" class="btn btn-primary fn-submit">Submit review</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" 
-  crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
     <script type="text/javascript">
-      $('.fn-submit').on('click', function( event ){
-        event.preventDefault();
+        $('.fn-submit').on('click', function(event) {
+            event.preventDefault();
 
-        $.ajax({
-          method: 'POST',
-          url: '/api/reviews',
-          data: JSON.stringify({
-            review:{
-              customerId: $('#customerId').val(),
-              roomTypeId: $('#roomTypeId').val(),
-              rating: $('#rating').val(),
-              comment: $('#comment').val(),
-              reviewDate: $('#reviewDate').val()
-            }
-          }),
-          contentType: 'application/json',
-          dataType: 'json'
-        }).done(function( response ) {
-          $('#customerId').val('');
-          $('#roomTypeId').val('');
-          $('#rating').val('');
-          $('#comment').val('');
-          $('#reviewDate').val('');
-
-          console.log(response);
+            $.ajax({
+                method: 'POST',
+                url: '/api/reviews',
+                data: JSON.stringify({
+                    review: {
+                        customerId: $('#customerId').val(),
+                        roomTypeId: $('#roomTypeId').val(),
+                        rating: $('#rating').val(),
+                        comment: $('#comment').val(),
+                        reviewDate: $('#reviewDate').val()
+                    }
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            }).done(function(response) {
+                $('#customerId').val('');
+                $('#roomTypeId').val('');
+                $('#rating').val('');
+                $('#comment').val('');
+                $('#reviewDate').val('');
+                alert(response.message);
+            });
         });
-      });
     </script>
-  </body>
+</body>
+
 </html>

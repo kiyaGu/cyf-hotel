@@ -201,7 +201,22 @@ router.put('/invoice', function(req, res) {
 
 router.post('/reviews', function(req, res) {
     // TODO read req.body.review
-    res.status(200).json(req.body);
+    const {
+        customerId,
+        roomTypeId,
+        rating,
+        comment,
+        reviewDate
+    } = req.body.review;
+    let sql = `INSERT INTO reviews (customer_id,room_type_id,rating,comment,review_date)
+    VALUES(?,?,?,?,?)`;
+    db.run(sql, [`${customerId}`, `${roomTypeId}`, `${rating}`, `${comment}`, `${reviewDate}`], (err, invoice) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ message: "Your review has been submited successfully!" });
+        }
+    });
 });
 
 module.exports = router;
