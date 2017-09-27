@@ -45,8 +45,7 @@ router.post('/customers', function(req, res) {
         if (err) {
             console.error(err)
         } else {
-
-            res.status(200).json({ message: "Reccord inserted successfuly" });
+            res.status(200).json({ message: "Record inserted successfully" });
         }
 
     });
@@ -113,7 +112,7 @@ router.put('/discount', function(req, res) {
                     console.error(err)
                 } else {
 
-                    res.status(200).json({ message: "Reccord updated successfuly" });
+                    res.status(200).json({ message: "Record updated successfully" });
                 }
 
             })
@@ -128,7 +127,30 @@ router.put('/discount', function(req, res) {
 
 router.post('/reservations', function(req, res) {
     // TODO read req.body.reservation, look up price by room id and insert reservation into DB
-    res.status(200).json(req.body.reservation);
+    const {
+        customerId,
+        roomId,
+        checkInDate,
+        checkOutDate
+    } = req.body.reservation;
+    // console.log(`${customerId},${roomId},${checkInDate},${checkOutDate} `)
+    // let x = `${ checkInDate }` > `${ checkOutDate }`;
+    // console.log(x)
+    let sql = `SELECT current_price from room_types 
+               WHERE id = ?`;
+    db.all(sql, [`${roomId}`], (err, currentPrice) => {
+        let price = currentPrice[0].current_price;
+        reservationSql = `INSERT INTO reservations(customer_id,room_id,check_in_date,check_out_date,room_price)
+                          VALUES (?,?,?,?,?)`;
+        db.run(reservationSql, [`${customerId}`, `${roomId}`, `${checkInDate}`, `${checkOutDate} `, price], (err) => {
+            if (err) {
+                console.error(err)
+            } else {
+                res.status(200).json({ message: "Your reservation has been made successfully" });
+            }
+        });
+
+    });
 });
 
 router.get('/reservations', function(req, res) {
