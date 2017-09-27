@@ -133,24 +133,37 @@ router.post('/reservations', function(req, res) {
         checkInDate,
         checkOutDate
     } = req.body.reservation;
-    // console.log(`${customerId},${roomId},${checkInDate},${checkOutDate} `)
-    // let x = `${ checkInDate }` > `${ checkOutDate }`;
-    // console.log(x)
-    let sql = `SELECT current_price from room_types 
-               WHERE id = ?`;
-    db.all(sql, [`${roomId}`], (err, currentPrice) => {
-        let price = currentPrice[0].current_price;
-        reservationSql = `INSERT INTO reservations(customer_id,room_id,check_in_date,check_out_date,room_price)
-                          VALUES (?,?,?,?,?)`;
-        db.run(reservationSql, [`${customerId}`, `${roomId}`, `${checkInDate}`, `${checkOutDate} `, price], (err) => {
-            if (err) {
-                console.error(err)
-            } else {
-                res.status(200).json({ message: "Your reservation has been made successfully" });
-            }
-        });
 
+    let sql1 = `SELECT * FROM reservations 
+                WHERE room_id = ? AND 
+                julianday(?) BETWEEN julianday(check_in_date) AND julianday(check_out_date) AND
+                julianday(?) <> julianday(check_out_date)`;
+    db.all(sql1, [`${ roomId }`, `${checkInDate}`, `${checkInDate}`], (err, record) => {
+        if (record.length > 0) {
+            res.status(200).json({
+                message: `Sorry, the room is alrady booked from ${record[0].check_in_date} till ${record[0].check_out_date}`
+            });
+        } else {
+            let sql = `SELECT current_price from room_types
+                            WHERE id = ? `;
+            db.all(sql, [`${ roomId }`], (err, currentPrice) => {
+                let price = currentPrice[0].current_price;
+                reservationSql = `
+                            INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
+                            VALUES( ? , ? , ? , ? , ? )
+                            `;
+                db.run(reservationSql, [`${ customerId }`, `${ roomId }`, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
+                    if (err) {
+                        console.error(err)
+                    } else {
+                        res.status(200).json({ message: "Your reservation has been made successfully" });
+                    }
+                });
+
+            });
+        }
     });
+
 });
 
 router.get('/reservations', function(req, res) {
