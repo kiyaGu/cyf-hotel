@@ -186,25 +186,21 @@ router.get('/reservations', function(req, res) {
 
 router.get('/reservations/date-from/:dateFrom', function(req, res) {
     // TODO read req.params.dateFrom to look up reservations and return
-    res.status(200).json({
-        reservations: [{
-            title: 'Mr',
-            firstname: 'Laurie',
-            surname: 'Ainley',
-            email: 'laurie@ainley.com',
-            roomId: 1,
-            checkInDate: '2017-10-10',
-            checkOutDate: '2017-10-17'
-        }, {
-            title: 'Miss',
-            firstname: 'Someone',
-            surname: 'Else',
-            email: 'someone@else.com',
-            roomId: 2,
-            checkInDate: '2017-11-12',
-            checkOutDate: '2017-11-15'
-        }]
+    let sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
+               reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
+               FROM customers
+               INNER JOIN reservations 
+               on customers.id = reservations.customer_id
+               WHERE julianday(check_in_date) >= julianday(?)`;
+    db.all(sql, [req.params.dateFrom], (err, reservations) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ reservations: reservations });
+        }
+
     });
+
 });
 
 router.put('/invoice', function(req, res) {
