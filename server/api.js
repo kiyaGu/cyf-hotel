@@ -7,16 +7,6 @@ const sqlite3 = require('sqlite3').verbose();
 let db = new sqlite3.Database(filename);
 
 router.get('/customers', function(req, res) {
-
-    // res.status(200).json({
-    //     customers: [{
-    //         id: 2,
-    //         title: 'Mr',
-    //         firstname: 'Laurie',
-    //         surname: 'Ainley',
-    //         email: 'laurie@ainley.com'
-    //     }]
-    // });
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
 
@@ -76,17 +66,6 @@ router.get('/room-types', function(req, res) {
             });
         });
     });
-
-    //current_price does not equal the standard_price
-    //text-decoration: line-through
-    // res.status(200).json({
-    //     roomtypes: [{
-    //         id: 2,
-    //         name: 'premium',
-    //         standard_price: 60,
-    //         current_price: 50
-    //     }]
-    // });
 });
 
 router.put('/discount', function(req, res) {
@@ -108,19 +87,14 @@ router.put('/discount', function(req, res) {
                         SET  current_price = ?
                         WHERE id = ?`;
         db.run(updateSql, [`${newPrice }`, `${req.query.id }`], (err) => {
-                if (err) {
-                    console.error(err)
-                } else {
+            if (err) {
+                console.error(err)
+            } else {
 
-                    res.status(200).json({ message: "Record updated successfully" });
-                }
+                res.status(200).json({ message: "Record updated successfully" });
+            }
 
-            })
-            // res.status(200).json(rows);
-            // res.status(200).json({
-            //     id: req.query.id,
-            //     discount: req.body.discount
-            // });
+        })
     });
 
 });
