@@ -206,10 +206,23 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
 
 router.put('/invoice', function(req, res) {
     // TODO read req.query.reservationId and req.body.invoice and insert into DB
-    res.status(200).json({
-        reservationId: req.query.reservationId,
-        invoice: req.body.invoice
+    const reservationId = req.query.reservationId;
+    const {
+        surcharges,
+        total,
+        invoiceDate,
+        paid
+    } = req.body.invoice;
+    let sql = `INSERT INTO invoices (reservation_id,surcharges,total,invoice_date_time,paid)
+               VALUES(?,?,?,?,?)`;
+    db.run(sql, [reservationId, `${surcharges}`, `${total}`, `${new Date(invoiceDate)}`, `${Boolean(paid)}`], (err, invoice) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ message: "The Invoice has been recorded successfully!" });
+        }
     });
+
 });
 
 router.post('/reviews', function(req, res) {
