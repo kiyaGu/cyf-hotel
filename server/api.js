@@ -46,7 +46,9 @@ router.post('/customers', function(req, res) {
         VALUES (?,?,?,?)`;
             db.run(sql, [`${title}`, `${firstname}`, `${surname}`, `${email}`], function(err) {
                 if (err) {
-                    console.error(err)
+                    res.status(200).json({
+                        message: "error: " + err
+                    });
                 } else {
                     res.status(200).json({ message: "You have registered with us successfully!!!" });
                 }
@@ -114,7 +116,9 @@ router.put('/discount', function(req, res) {
                         WHERE id = ?`;
         db.run(updateSql, [`${newPrice }`, `${req.query.id }`], (err) => {
             if (err) {
-                console.error(err)
+                res.status(200).json({
+                    message: "error: " + err
+                });
             } else {
 
                 res.status(200).json({ message: "Record updated successfully" });
@@ -154,7 +158,9 @@ router.post('/reservations', function(req, res) {
                             `;
                 db.run(reservationSql, [`${ customerId }`, `${ roomId }`, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
                     if (err) {
-                        console.error(err)
+                        res.status(200).json({
+                            message: "error: " + err
+                        });
                     } else {
                         res.status(200).json({ message: "Your reservation has been made successfully" });
                     }
@@ -240,7 +246,9 @@ router.put('/invoice', function(req, res) {
 
     db.run(sql, [reservationId, `${surcharges}`, `${total}`, `${invoiceDate}`, `${paid}`], (err, invoice) => {
         if (err) {
-            console.error(err)
+            res.status(200).json({
+                message: "error: " + err
+            });
         } else {
             res.status(200).json({ message: "The Invoice has been recorded successfully!" });
         }
@@ -261,7 +269,9 @@ router.post('/reviews', function(req, res) {
     VALUES(?,?,?,?,?)`;
     db.run(sql, [`${customerId}`, `${roomTypeId}`, `${rating}`, `${comment}`, `${reviewDate}`], (err, invoice) => {
         if (err) {
-            console.error(err)
+            res.status(200).json({
+                message: "error: " + err
+            });
         } else {
             res.status(200).json({ message: "Your review has been submited successfully!" });
         }
