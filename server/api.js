@@ -24,7 +24,6 @@ router.get('/customers', function(req, res) {
     });
 
 });
-
 router.post('/customers', function(req, res) {
     // TODO read req.body.customer and insert into DB
     const {
@@ -84,10 +83,21 @@ router.get('/room-types', function(req, res) {
     });
 });
 
+router.get('/4-discount', (req, res) => {
+    //TODO populate the id filed with data from the server
+    let sql1 = `SELECT id FROM room_types`;
+    db.all(sql1, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ data: data });
+        }
+    });
+});
 router.put('/discount', function(req, res) {
     // TODO read roomId from req.query.id and update discount
-
-    let sql = 'select * from room_types where id = ?';
+    let sql = `SELECT * from room_types 
+                WHERE id = ?`;
     //req.query.id => to get the id that is passed as part of the url
     db.all(sql, [req.query.id], (err, currentPrice) => {
         console.log(currentPrice)
@@ -98,7 +108,7 @@ router.put('/discount', function(req, res) {
             current_price = currentPrice[0].current_price,
             discountRate = req.body.discount;
 
-        newPrice = current_price - (current_price * (discountRate / 100));
+        newPrice = Math.floor(current_price - (current_price * (discountRate / 100)));
         let updateSql = `UPDATE room_types
                         SET  current_price = ?
                         WHERE id = ?`;
@@ -155,7 +165,17 @@ router.post('/reservations', function(req, res) {
     });
 
 });
-
+router.get('/6-search', (req, res) => {
+    //TODO populate the id filed with data from the server
+    let sql1 = `SELECT id FROM customers`;
+    db.all(sql1, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ data: data });
+        }
+    });
+});
 router.get('/reservations', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
     // the search by name is done through using surname
