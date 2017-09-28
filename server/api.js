@@ -165,9 +165,10 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
                FROM customers
                INNER JOIN reservations 
                on customers.id = reservations.customer_id
-               WHERE julianday(check_in_date) >= julianday(?)
+               WHERE check_in_date BETWEEN date(?) AND date(?,'start of month','+1 month','-1 day')
                ORDER BY julianday(check_in_date)`;
-    db.all(sql, [req.params.dateFrom], (err, reservations) => {
+
+    db.all(sql, [req.params.dateFrom, req.params.dateFrom], (err, reservations) => {
         if (err) {
             console.error(err)
         } else {
