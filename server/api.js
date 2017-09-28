@@ -84,7 +84,7 @@ router.get('/room-types', function(req, res) {
 });
 
 router.get('/4-discount', (req, res) => {
-    //TODO populate the id filed with data from the server
+    //TODO populate the id field with data from the server
     let sql1 = `SELECT id FROM room_types`;
     db.all(sql1, [], (err, data) => {
         if (err) {
@@ -166,7 +166,7 @@ router.post('/reservations', function(req, res) {
 
 });
 router.get('/6-search', (req, res) => {
-    //TODO populate the id filed with data from the server
+    //TODO populate the customer id field with data from the server
     let sql1 = `SELECT id FROM customers`;
     db.all(sql1, [], (err, data) => {
         if (err) {
@@ -214,10 +214,21 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
     });
 
 });
-
+router.get('/8-invoice', (req, res) => {
+    //TODO populate the id field with data from the server
+    let sql1 = `SELECT id FROM reservations`;
+    db.all(sql1, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.status(200).json({ data: data });
+        }
+    });
+});
 router.put('/invoice', function(req, res) {
     // TODO read req.query.reservationId and req.body.invoice and insert into DB
     const reservationId = req.query.reservationId;
+    console.log(req.body.invoice.invoiceDate)
     const {
         surcharges,
         total,
@@ -226,7 +237,8 @@ router.put('/invoice', function(req, res) {
     } = req.body.invoice;
     let sql = `INSERT INTO invoices (reservation_id,surcharges,total,invoice_date_time,paid)
                VALUES(?,?,?,?,?)`;
-    db.run(sql, [reservationId, `${surcharges}`, `${total}`, `${new Date(invoiceDate)}`, `${Boolean(paid)}`], (err, invoice) => {
+
+    db.run(sql, [reservationId, `${surcharges}`, `${total}`, `${invoiceDate}`, `${paid}`], (err, invoice) => {
         if (err) {
             console.error(err)
         } else {

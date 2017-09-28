@@ -34,7 +34,9 @@
                     <tbody>
                         <tr>
                             <td>
-                                <input id="reservationId" type="text" class="form-control" placeholder="Reservation id" name="reservationId" />
+                                <!-- <input id="reservationId" type="text" class="form-control" placeholder="Reservation id" name="reservationId" /> -->
+                                <select name="reservationId" id="reservationId" class="form-control">
+                                    </select>
                             </td>
                             <td><input id="surcharges" type="text" class="form-control" placeholder="Surcharges" name="surcharges" /></td>
                             <td><input id="total" type="text" class="form-control" placeholder="Total" name="total" /></td>
@@ -55,24 +57,40 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
     <script type="text/javascript">
+        //populate the reservation id field with data from the server
+        $.ajax({
+            method: 'GET',
+            url: '/api/8-invoice'
+        }).done((data) => {
+            data.data.forEach(function(element) {
+                $('#reservationId').append(`<option>${element.id}</option>`);
+            });
+        });
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
-
+            console.log(JSON.stringify({
+                invoice: {
+                    surcharges: $('#surcharges').val(),
+                    total: $('#total').val(),
+                    invoiceDate: $('#invoiceDate').val(),
+                    paid: $('#paid').val(),
+                }
+            }))
             $.ajax({
                 method: 'PUT',
-                url: '/api/invoice?reservationId=' + $('#reservationId').val(),
+                url: '/api/invoice?reservationId=' + $('#reservationId option:selected').text(),
                 data: JSON.stringify({
                     invoice: {
-                        surcharges: +$('#surcharges').val(),
-                        total: +$('#total').val(),
-                        invoiceDate: +$('#invoiceDate').val(),
-                        paid: +$('#paid').val(),
+                        surcharges: $('#surcharges').val(),
+                        total: $('#total').val(),
+                        invoiceDate: $('#invoiceDate').val(),
+                        paid: $('#paid').val(),
                     }
                 }),
                 contentType: 'application/json',
                 dataType: 'json'
             }).done(function(response) {
-                $('#reservationId').val('');
+                $('#reservationId').prop('selectedIndex', 0);
                 $('#surcharges').val('');
                 $('#total').val('');
                 $('#invoiceDate').val('');
