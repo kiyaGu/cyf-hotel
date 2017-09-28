@@ -10,12 +10,16 @@ router.get('/customers', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
 
-        var sql = 'select * from customers';
+        var sql = 'SELECT * from customers';
 
         db.all(sql, [], (err, rows) => {
-            res.status(200).json({
-                customers: rows
-            });
+            if (err) {
+                console.error(err)
+            } else {
+                res.status(200).json({
+                    customers: rows
+                });
+            }
         });
     });
 
@@ -219,5 +223,19 @@ router.post('/reviews', function(req, res) {
         }
     });
 });
+router.get('/getReviews', function(req, res) {
+    // TODO comment out response above and uncomment the below
+    db.serialize(function() {
+        var sql = `SELECT type_name AS roomType, AVG(rating) AS rating FROM room_types 
+                   INNER JOIN reviews 
+                   ON room_types.id = reviews.room_type_id
+                   GROUP BY reviews.room_type_id`;
+        db.all(sql, [], (err, rows) => {
+            res.status(200).json({
+                reviews: rows
+            });
+        });
+    });
 
+});
 module.exports = router;
