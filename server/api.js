@@ -33,16 +33,28 @@ router.post('/customers', function(req, res) {
         surname,
         email
     } = req.body.customer;
-    let sql = `INSERT INTO customers (title,firstname,surname,email) 
-    VALUES (?,?,?,?)`;
-    db.run(sql, [`${title}`, `${firstname}`, `${surname}`, `${email}`], function(err) {
+
+    let sql = `SELECT email FROM customers
+                WHERE email = ?`;
+    db.all(sql, [`${email}`], (err, response) => {
         if (err) {
             console.error(err)
+        } else if (response.length > 0) {
+            res.status(200).json({ message: `A customer with the email address ${response[0].email} is already registerd with us.
+                                   if that is You please, log in` });
         } else {
-            res.status(200).json({ message: "Record inserted successfully" });
+            let sql = `INSERT INTO customers (title,firstname,surname,email) 
+        VALUES (?,?,?,?)`;
+            db.run(sql, [`${title}`, `${firstname}`, `${surname}`, `${email}`], function(err) {
+                if (err) {
+                    console.error(err)
+                } else {
+                    res.status(200).json({ message: "You have registered with us successfully!!!" });
+                }
+            });
         }
-
     });
+
 
 
 });
