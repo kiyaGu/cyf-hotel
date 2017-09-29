@@ -56,7 +56,10 @@
             </div>
         </div>
     </div>
-
+    <div>
+        <ul id="error" style="list-style: none; padding-left:100px">
+        </ul>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -79,28 +82,47 @@
         });
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
+            //check if the error was alrady displayed
+            //if so clear it and display the new error, if there is
+            if ($('#error').has('li'))
+                $('#error').empty();
+            // input validation
+            //push an error message for each empty field
+            let error = [];
+            if ($('#checkInDate').val() == "") {
+                error.push("Please, fill the check in date field");
+            }
+            if ($('#checkOutDate').val() == "") {
+                error.push("Please, fill the check out date field");
+            }
+            //if there is error display it as a list
+            if (error.length > 0) {
+                error.forEach(element => {
+                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                })
+            } else {
+                $.ajax({
+                    method: 'POST',
+                    data: JSON.stringify({
+                        reservation: {
+                            customerName: $('#customerName option:selected').text(),
+                            roomTypeName: $('#roomTypeName option:selected').text(),
+                            checkInDate: $('#checkInDate').val(),
+                            checkOutDate: $('#checkOutDate').val()
+                        }
+                    }),
+                    url: '/api/reservations',
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).done(function(response) {
+                    $('#customerName').prop('selectedIndex', 0);
+                    $('#roomTypeName').prop('selectedIndex', 0);
+                    $('#checkInDate').val('');
+                    $('#checkOutDate').val('');
 
-            $.ajax({
-                method: 'POST',
-                data: JSON.stringify({
-                    reservation: {
-                        customerName: $('#customerName option:selected').text(),
-                        roomTypeName: $('#roomTypeName option:selected').text(),
-                        checkInDate: $('#checkInDate').val(),
-                        checkOutDate: $('#checkOutDate').val()
-                    }
-                }),
-                url: '/api/reservations',
-                contentType: 'application/json',
-                dataType: 'json'
-            }).done(function(response) {
-                $('#customerName').prop('selectedIndex', 0);
-                $('#roomTypeName').prop('selectedIndex', 0);
-                $('#checkInDate').val('');
-                $('#checkOutDate').val('');
-
-                alert(response.message);
-            });
+                    alert(response.message);
+                });
+            }
         });
     </script>
 </body>
