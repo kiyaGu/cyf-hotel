@@ -266,8 +266,8 @@ router.get('/search', function(req, res) {
     // the search by name is done through using surname
 
 
-    const sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
-               reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
+    const sql = `SELECT title, firstname, surname, email,
+               room_id AS roomId, check_in_date AS checkInDate, check_out_date AS checkOutDate
                FROM customers
                INNER JOIN reservations 
                on customers.id = reservations.customer_id
@@ -293,7 +293,7 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
                FROM customers
                INNER JOIN reservations 
                on customers.id = reservations.customer_id
-               WHERE check_in_date BETWEEN date(?) AND date(?,'start of month','+1 month','-1 day')
+               WHERE check_in_date BETWEEN date(?) AND date(?,'+30 day')
                ORDER BY julianday(check_in_date)`;
 
     db.all(sql, [req.params.dateFrom, req.params.dateFrom], (err, reservations) => {

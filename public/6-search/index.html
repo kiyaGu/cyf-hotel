@@ -25,7 +25,7 @@
                         <tr>
                             <th>Customer id</th>
                             <th></th>
-                            <th>Customer name</th>
+                            <th>Customer Full Name</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -116,7 +116,6 @@
         function insertResponse(response) {
             const source = $("#template").html();
             const template = Handlebars.compile(source);
-            console.log(response)
             const rows = response.reservations.map(function(reservation) {
                 return template(reservation);
             });
