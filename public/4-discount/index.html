@@ -23,7 +23,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Room type ID</th>
+                            <th>Room type</th>
                             <th>Discounted rice</th>
                             <th></th>
                         </tr>
@@ -32,7 +32,7 @@
                         <tr>
                             <td>
                                 <!-- <input id="roomTypeId" type="text" class="form-control" placeholder="Room type id" name="roomTypeId" /> -->
-                                <select name="roomTypeId" id="roomTypeId" class="form-control">
+                                <select name="roomTypeName" id="roomTypeName" class="form-control">
                                 </select>
                             </td>
                             <td>
@@ -60,7 +60,7 @@
             url: '/api/discount'
         }).done((data) => {
             data.data.forEach(function(element) {
-                $('#roomTypeId').append(`<option>${element.id}</option>`);
+                $('#roomTypeName').append(`<option>${element.type_name}</option>`);
             });
         });
         $('.fn-submit').on('click', function(event) {
@@ -72,12 +72,12 @@
                     discount: $('#discount').val()
                 }),
                 // url: '/api/discount?id=' + $('#roomTypeId').val(),
-                url: '/api/discount?id=' + $('#roomTypeId option:selected').text(),
+                url: '/api/discount?type_name=' + $('#roomTypeName option:selected').text(),
                 contentType: 'application/json',
                 dataType: 'json'
             }).done(function(response) {
                 $('#discount').val('');
-                $('#roomTypeId').prop('selectedIndex', 0);
+                $('#roomTypeName').prop('selectedIndex', 0);
                 alert(response.message);
             });
         });

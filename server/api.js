@@ -98,7 +98,7 @@ router.get('/room-types', function(req, res) {
 
 router.get('/discount', (req, res) => {
     //TODO populate the id field with data from the server
-    const sqlSelectRoomIds = `SELECT id FROM room_types`;
+    const sqlSelectRoomIds = `SELECT type_name FROM room_types`;
     db.all(sqlSelectRoomIds, [], (err, data) => {
         if (err) {
             console.error(err)
@@ -110,9 +110,9 @@ router.get('/discount', (req, res) => {
 router.put('/discount', function(req, res) {
     // TODO read roomId from req.query.id and update discount
     const sqlSelect = `SELECT * from room_types 
-                WHERE id = ?`;
+                WHERE type_name = ?`;
     //req.query.id => to get the id that is passed as part of the url
-    db.get(sqlSelect, [req.query.id], (err, currentPrice) => {
+    db.get(sqlSelect, [req.query.type_name], (err, currentPrice) => {
 
         //assumption: the discount is given in % as 10 means 10% and the discount is done on the 
         //the current price if the current and the original price are equal it is a new discount on the original price else
@@ -124,8 +124,8 @@ router.put('/discount', function(req, res) {
         newPrice = Math.floor(current_price - (current_price * (discountRate / 100)));
         const updateSql = `UPDATE room_types
                         SET  current_price = ?
-                        WHERE id = ?`;
-        db.run(updateSql, [`${newPrice }`, `${req.query.id }`], (err) => {
+                        WHERE type_name = ?`;
+        db.run(updateSql, [`${newPrice }`, `${req.query.type_name}`], (err) => {
             if (err) {
                 res.status(200).json({
                     message: "error: " + err
@@ -140,34 +140,39 @@ router.put('/discount', function(req, res) {
 
 });
 
+
 router.post('/reservations', function(req, res) {
     // TODO read req.body.reservation, look up price by room id and insert reservation into DB
     const {
         customerId,
-        roomId,
+        roomTypeName,
         checkInDate,
         checkOutDate
     } = req.body.reservation;
 
     const sqlSelectCheckRoom = `SELECT * FROM reservations 
-                WHERE room_id = ? AND 
+                INNER JOIN room_types
+                ON reservations.room_id = room_types.id
+                WHERE type_name = ? AND 
                 julianday(?) BETWEEN julianday(check_in_date) AND julianday(check_out_date) AND
                 julianday(?) <> julianday(check_out_date)`;
-    db.all(sqlSelectCheckRoom, [`${ roomId }`, `${checkInDate}`, `${checkInDate}`], (err, record) => {
+    db.all(sqlSelectCheckRoom, [`${ roomTypeName }`, `${checkInDate}`, `${checkInDate}`], (err, record) => {
         if (record.length > 0) {
             res.status(200).json({
                 message: `Sorry, the room is alrady booked from ${record[0].check_in_date} till ${record[0].check_out_date}`
             });
         } else {
-            const sql = `SELECT current_price from room_types
-                            WHERE id = ? `;
-            db.get(sql, [`${ roomId }`], (err, currentPrice) => {
+            //
+            const sql = `SELECT current_price,id from room_types
+                            WHERE type_name = ? `;
+            db.get(sql, [`${ roomTypeName }`], (err, currentPrice) => {
                 let price = currentPrice.current_price;
+                let roomId = currentPrice.id
                 const reservationSql = `
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
                             VALUES( ? , ? , ? , ? , ? )
                             `;
-                db.run(reservationSql, [`${ customerId }`, `${ roomId }`, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
+                db.run(reservationSql, [`${ customerId }`, roomId, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
                     if (err) {
                         res.status(200).json({
                             message: "error: " + err

@@ -24,7 +24,7 @@
                     <thead>
                         <tr>
                             <th>Customer id</th>
-                            <th>Room id</th>
+                            <th>Room Type</th>
                             <th>Check in date</th>
                             <th>Check out date</th>
                             <th></th>
@@ -37,7 +37,7 @@
                             </th>
                             <td>
                                 <!-- <input id="roomId" type="text" class="form-control" placeholder="Room type id" name="roomId" /> -->
-                                <select name="roomTypeId" id="roomTypeId" class="form-control">
+                                <select name="roomTypeName" id="roomTypeName" class="form-control">
                                 </select>
                             </td>
                             <td>
@@ -68,7 +68,7 @@
             url: '/api/discount'
         }).done((data) => {
             data.data.forEach(function(element) {
-                $('#roomTypeId').append(`<option>${element.id}</option>`);
+                $('#roomTypeName').append(`<option>${element.type_name}</option>`);
             });
         });
         $('.fn-submit').on('click', function(event) {
@@ -79,7 +79,7 @@
                 data: JSON.stringify({
                     reservation: {
                         customerId: $('#customerId').val(),
-                        roomId: $('#roomTypeId option:selected').text(),
+                        roomTypeName: $('#roomTypeName option:selected').text(),
                         checkInDate: $('#checkInDate').val(),
                         checkOutDate: $('#checkOutDate').val()
                     }
@@ -89,7 +89,7 @@
                 dataType: 'json'
             }).done(function(response) {
                 $('#customerId').val('');
-                $('#roomTypeId').prop('selectedIndex', 0);
+                $('#roomTypeName').prop('selectedIndex', 0);
                 $('#checkInDate').val('');
                 $('#checkOutDate').val('');
 
