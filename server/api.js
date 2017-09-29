@@ -61,6 +61,16 @@ router.post('/customers', function(req, res) {
 });
 router.get('/room-types', function(req, res) {
     // TODO return DB row here
+    //to avoid missing trailing zeros while converting the price form int to its original floating 
+    //point representation
+    function checkForTrailingZeros(price) {
+        if ((price) % 100 !== 0) {
+            return (price / 100).toFixed(2);
+
+        } else {
+            return (price / 100);
+        }
+    }
     db.serialize(function() {
         const sql = 'select * from room_types ORDER BY original_price ASC';
         db.all(sql, [], (err, rows) => {
@@ -68,9 +78,11 @@ router.get('/room-types', function(req, res) {
             rows.forEach((element) => {
                 let price;
                 if (element.original_price === element.current_price) {
-                    price = '£' + element.original_price / 100;
+                    price = '£' + checkForTrailingZeros(element.original_price);
                 } else {
-                    price = `<span style = 'text-decoration:line-through'>£${element.original_price/ 100}</span> £${element.current_price/ 100}`
+                    price = `<span style = 'text-decoration:line-through'>
+                            £${checkForTrailingZeros(element.original_price)}</span>
+                            £${checkForTrailingZeros(element.current_price)}`;
                 }
                 temp.push({
                     id: element.id,
