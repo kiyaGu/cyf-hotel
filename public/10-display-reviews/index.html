@@ -90,8 +90,6 @@
                 const source = $("#template").html();
                 const template = Handlebars.compile(source);
                 const rows = response.reviews.map(function(review) {
-
-
                     review.id = response.reviews.indexOf(review) + 1;
                     return template(review);
                 });
