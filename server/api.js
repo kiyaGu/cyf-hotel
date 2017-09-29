@@ -230,20 +230,42 @@ router.post('/reservations', function(req, res) {
     });
 
 });
-router.get('/search', (req, res) => {
+router.get('/6-search', (req, res) => {
     //TODO populate the customer id field with data from the server
-    const sqlSelectCustomerId = `SELECT id FROM customers`;
-    db.all(sqlSelectCustomerId, [], (err, data) => {
+    const sqlSelectRoomIds = `SELECT id FROM customers`;
+    let responseData = {};
+    //get all rooms type name
+    db.all(sqlSelectRoomIds, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
-            res.status(200).json({ data: data });
+            responseData.customer_id = data;
         }
     });
+    //get all customers name
+    const sqlSelectCustomerName = `SELECT firstname, surname FROM customers`;
+    db.all(sqlSelectCustomerName, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            //construct the full name of each customer
+            let customersName = [];
+            data.forEach((element) => {
+                customersName.push({
+                    fullName: element.firstname + " " + element.surname
+                });
+            });
+            responseData.customers_name = customersName;
+            res.status(200).send(responseData);
+        }
+    });
+
 });
-router.get('/reservations', function(req, res) {
+router.get('/search', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
     // the search by name is done through using surname
+
+
     const sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
                reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
                FROM customers
@@ -251,7 +273,11 @@ router.get('/reservations', function(req, res) {
                on customers.id = reservations.customer_id
                WHERE customers.id = ? OR customers.surname = ?`;
     //a customer can have more than one reservation
-    db.all(sql, [req.query.id, req.query.name], (err, reservation) => {
+    //get the surname from the full name, if there is a passed one
+    let surname;
+    if (req.query.customerName !== undefined)
+        surname = req.query.customerName.split(" ")[1];
+    db.all(sql, [req.query.id, surname], (err, reservation) => {
         if (err) {
             console.error(err)
         } else {

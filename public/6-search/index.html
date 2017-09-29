@@ -37,7 +37,11 @@
                                 </select>
                             </td>
                             <td><button type="submit" class="btn btn-primary fn-submit-id">Search by customer id</button></td>
-                            <td><input id="name" type="text" class="form-control" placeholder="Customer name" name="name" /></td>
+                            <td>
+                                <!-- <input id="name" type="text" class="form-control" placeholder="Customer name" name="name" /> -->
+                                <select name="customerName" id="customerName" class="form-control">
+                                    </select>
+                            </td>
                             <td><button type="submit" class="btn btn-primary fn-submit-name">Search by customer name</button></td>
                         </tr>
                     </tbody>
@@ -97,17 +101,22 @@
         //populate the customer id field with data from the server
         $.ajax({
             method: 'GET',
-            url: '/api/search'
+            url: '/api/6-search'
         }).done((data) => {
-            data.data.forEach(function(element) {
+
+            data.customer_id.forEach(function(element) {
                 $('#customerId').append(`<option>${element.id}</option>`);
+            });
+            //populate the customername
+            data.customers_name.forEach(function(element) {
+                $('#customerName').append(`<option>${element.fullName}</option>`);
             });
         });
 
         function insertResponse(response) {
             const source = $("#template").html();
             const template = Handlebars.compile(source);
-
+            console.log(response)
             const rows = response.reservations.map(function(reservation) {
                 return template(reservation);
             });
@@ -120,7 +129,7 @@
 
             $.ajax({
                 method: 'GET',
-                url: '/api/reservations?id=' + $('#customerId option:selected').text()
+                url: '/api/search?id=' + $('#customerId option:selected').text()
             }).done(function(response) {
                 insertResponse(response);
             });
@@ -131,7 +140,7 @@
 
             $.ajax({
                 method: 'GET',
-                url: '/api/reservations?name=' + $('#name').val()
+                url: '/api/search?customerName=' + $('#customerName option:selected').text()
             }).done(function(response) {
                 insertResponse(response);
             });
