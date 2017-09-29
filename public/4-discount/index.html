@@ -47,7 +47,10 @@
             </div>
         </div>
     </div>
-
+    <div>
+        <ul id="error" style="list-style: none; padding-left:100px">
+        </ul>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -65,21 +68,37 @@
         });
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
-
-            $.ajax({
-                method: 'PUT',
-                data: JSON.stringify({
-                    discount: $('#discount').val()
-                }),
-                // url: '/api/discount?id=' + $('#roomTypeId').val(),
-                url: '/api/discount?type_name=' + $('#roomTypeName option:selected').text(),
-                contentType: 'application/json',
-                dataType: 'json'
-            }).done(function(response) {
-                $('#discount').val('');
-                $('#roomTypeName').prop('selectedIndex', 0);
-                alert(response.message);
-            });
+            //check if the error was alrady displayed
+            //if so clear it and display the new error, if there is
+            if ($('#error').has('li'))
+                $('#error').empty();
+            // input validation
+            //push an error message for each empty field
+            let error = [];
+            if ($('#discount').val() == "") {
+                error.push("Please, fill the discount field");
+            }
+            //if there is error display it as a list
+            if (error.length > 0) {
+                error.forEach(element => {
+                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                })
+            } else {
+                $.ajax({
+                    method: 'PUT',
+                    data: JSON.stringify({
+                        discount: $('#discount').val()
+                    }),
+                    // url: '/api/discount?id=' + $('#roomTypeId').val(),
+                    url: '/api/discount?type_name=' + $('#roomTypeName option:selected').text(),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).done(function(response) {
+                    $('#discount').val('');
+                    $('#roomTypeName').prop('selectedIndex', 0);
+                    alert(response.message);
+                });
+            }
         });
     </script>
 </body>
