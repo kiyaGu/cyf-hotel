@@ -97,7 +97,7 @@
         //populate the customer id field with data from the server
         $.ajax({
             method: 'GET',
-            url: '/api/6-search'
+            url: '/api/search'
         }).done((data) => {
             data.data.forEach(function(element) {
                 $('#customerId').append(`<option>${element.id}</option>`);

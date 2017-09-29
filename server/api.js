@@ -10,7 +10,7 @@ router.get('/customers', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
 
-        var sql = 'SELECT * from customers';
+        const sql = 'SELECT * from customers';
 
         db.all(sql, [], (err, rows) => {
             if (err) {
@@ -33,18 +33,18 @@ router.post('/customers', function(req, res) {
         email
     } = req.body.customer;
 
-    let sql = `SELECT email FROM customers
+    const sqlSelect = `SELECT email FROM customers
                 WHERE email = ?`;
-    db.all(sql, [`${email}`], (err, response) => {
+    db.all(sqlSelect, [`${email}`], (err, response) => {
         if (err) {
             console.error(err)
         } else if (response.length > 0) {
             res.status(200).json({ message: `A customer with the email address ${response[0].email} is already registerd with us.
                                    if that is You please, log in` });
         } else {
-            let sql = `INSERT INTO customers (title,firstname,surname,email) 
+            const sqlInsert = `INSERT INTO customers (title,firstname,surname,email) 
         VALUES (?,?,?,?)`;
-            db.run(sql, [`${title}`, `${firstname}`, `${surname}`, `${email}`], function(err) {
+            db.run(sqlInsert, [`${title}`, `${firstname}`, `${surname}`, `${email}`], function(err) {
                 if (err) {
                     res.status(200).json({
                         message: "error: " + err
@@ -62,7 +62,7 @@ router.post('/customers', function(req, res) {
 router.get('/room-types', function(req, res) {
     // TODO return DB row here
     db.serialize(function() {
-        var sql = 'select * from room_types ORDER BY original_price ASC';
+        const sql = 'select * from room_types ORDER BY original_price ASC';
         db.all(sql, [], (err, rows) => {
             let temp = [];
             rows.forEach((element) => {
@@ -85,10 +85,10 @@ router.get('/room-types', function(req, res) {
     });
 });
 
-router.get('/4-discount', (req, res) => {
+router.get('/discount', (req, res) => {
     //TODO populate the id field with data from the server
-    let sql1 = `SELECT id FROM room_types`;
-    db.all(sql1, [], (err, data) => {
+    const sqlSelectRoomIds = `SELECT id FROM room_types`;
+    db.all(sqlSelectRoomIds, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
@@ -98,10 +98,10 @@ router.get('/4-discount', (req, res) => {
 });
 router.put('/discount', function(req, res) {
     // TODO read roomId from req.query.id and update discount
-    let sql = `SELECT * from room_types 
+    const sqlSelect = `SELECT * from room_types 
                 WHERE id = ?`;
     //req.query.id => to get the id that is passed as part of the url
-    db.all(sql, [req.query.id], (err, currentPrice) => {
+    db.all(sqlSelect, [req.query.id], (err, currentPrice) => {
         console.log(currentPrice)
             //assumption: the discount is given in % as 10 means 10% and the discount is done on the 
             //the current price if the current and the original price are equal it is a new discount on the original price else
@@ -111,7 +111,7 @@ router.put('/discount', function(req, res) {
             discountRate = req.body.discount;
 
         newPrice = Math.floor(current_price - (current_price * (discountRate / 100)));
-        let updateSql = `UPDATE room_types
+        const updateSql = `UPDATE room_types
                         SET  current_price = ?
                         WHERE id = ?`;
         db.run(updateSql, [`${newPrice }`, `${req.query.id }`], (err) => {
@@ -138,21 +138,21 @@ router.post('/reservations', function(req, res) {
         checkOutDate
     } = req.body.reservation;
 
-    let sql1 = `SELECT * FROM reservations 
+    const sqlSelectCheckRoom = `SELECT * FROM reservations 
                 WHERE room_id = ? AND 
                 julianday(?) BETWEEN julianday(check_in_date) AND julianday(check_out_date) AND
                 julianday(?) <> julianday(check_out_date)`;
-    db.all(sql1, [`${ roomId }`, `${checkInDate}`, `${checkInDate}`], (err, record) => {
+    db.all(sqlSelectCheckRoom, [`${ roomId }`, `${checkInDate}`, `${checkInDate}`], (err, record) => {
         if (record.length > 0) {
             res.status(200).json({
                 message: `Sorry, the room is alrady booked from ${record[0].check_in_date} till ${record[0].check_out_date}`
             });
         } else {
-            let sql = `SELECT current_price from room_types
+            const sql = `SELECT current_price from room_types
                             WHERE id = ? `;
             db.all(sql, [`${ roomId }`], (err, currentPrice) => {
                 let price = currentPrice[0].current_price;
-                reservationSql = `
+                const reservationSql = `
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
                             VALUES( ? , ? , ? , ? , ? )
                             `;
@@ -171,10 +171,10 @@ router.post('/reservations', function(req, res) {
     });
 
 });
-router.get('/6-search', (req, res) => {
+router.get('/search', (req, res) => {
     //TODO populate the customer id field with data from the server
-    let sql1 = `SELECT id FROM customers`;
-    db.all(sql1, [], (err, data) => {
+    const sqlSelectCustomerId = `SELECT id FROM customers`;
+    db.all(sqlSelectCustomerId, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
@@ -185,7 +185,7 @@ router.get('/6-search', (req, res) => {
 router.get('/reservations', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
     // the search by name is done through using surname
-    let sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
+    const sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
                reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
                FROM customers
                INNER JOIN reservations 
@@ -202,7 +202,7 @@ router.get('/reservations', function(req, res) {
 
 router.get('/reservations/date-from/:dateFrom', function(req, res) {
     // TODO read req.params.dateFrom to look up reservations and return
-    let sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
+    const sql = `SELECT customers.title,customers.firstname,customers.surname,customers.email,
                reservations.room_id AS roomId,reservations.check_in_date AS checkInDate,reservations.check_out_date AS checkOutDate
                FROM customers
                INNER JOIN reservations 
@@ -220,10 +220,10 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
     });
 
 });
-router.get('/8-invoice', (req, res) => {
+router.get('/invoice', (req, res) => {
     //TODO populate the id field with data from the server
-    let sql1 = `SELECT id FROM reservations`;
-    db.all(sql1, [], (err, data) => {
+    const sqlSelectReservationId = `SELECT id FROM reservations`;
+    db.all(sqlSelectReservationId, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
@@ -241,10 +241,10 @@ router.put('/invoice', function(req, res) {
         invoiceDate,
         paid
     } = req.body.invoice;
-    let sql = `INSERT INTO invoices (reservation_id,surcharges,total,invoice_date_time,paid)
+    const sqlInsert = `INSERT INTO invoices (reservation_id,surcharges,total,invoice_date_time,paid)
                VALUES(?,?,?,?,?)`;
 
-    db.run(sql, [reservationId, `${surcharges}`, `${total}`, `${invoiceDate}`, `${paid}`], (err, invoice) => {
+    db.run(sqlInsert, [reservationId, `${surcharges}`, `${total}`, `${invoiceDate}`, `${paid}`], (err, invoice) => {
         if (err) {
             res.status(200).json({
                 message: "error: " + err
@@ -265,9 +265,9 @@ router.post('/reviews', function(req, res) {
         comment,
         reviewDate
     } = req.body.review;
-    let sql = `INSERT INTO reviews (customer_id,room_type_id,rating,comment,review_date)
-    VALUES(?,?,?,?,?)`;
-    db.run(sql, [`${customerId}`, `${roomTypeId}`, `${rating}`, `${comment}`, `${reviewDate}`], (err, invoice) => {
+    const sqlInsert = `INSERT INTO reviews (customer_id,room_type_id,rating,comment,review_date)
+                        VALUES(?,?,?,?,?)`;
+    db.run(sqlInsert, [`${customerId}`, `${roomTypeId}`, `${rating}`, `${comment}`, `${reviewDate}`], (err, invoice) => {
         if (err) {
             res.status(200).json({
                 message: "error: " + err
@@ -277,14 +277,14 @@ router.post('/reviews', function(req, res) {
         }
     });
 });
-router.get('/getReviews', function(req, res) {
+router.get('/reviews', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
-        var sql = `SELECT type_name AS roomType, AVG(rating) AS rating FROM room_types 
+        const sqlSelect = `SELECT type_name AS roomType, AVG(rating) AS rating FROM room_types 
                    INNER JOIN reviews 
                    ON room_types.id = reviews.room_type_id
                    GROUP BY reviews.room_type_id`;
-        db.all(sql, [], (err, rows) => {
+        db.all(sqlSelect, [], (err, rows) => {
             res.status(200).json({
                 reviews: rows
             });

@@ -61,11 +61,10 @@
             event.preventDefault();
             $.ajax({
                 method: 'GET',
-                url: '/api/getReviews'
+                url: '/api/reviews'
             }).done(function(response) {
                 const source = $("#template").html();
                 const template = Handlebars.compile(source);
-
                 const rows = response.reviews.map(function(review) {
                     review.id = response.reviews.indexOf(review) + 1;
                     return template(review);

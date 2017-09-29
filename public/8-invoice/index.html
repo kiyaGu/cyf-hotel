@@ -60,7 +60,7 @@
         //populate the reservation id field with data from the server
         $.ajax({
             method: 'GET',
-            url: '/api/8-invoice'
+            url: '/api/invoice'
         }).done((data) => {
             data.data.forEach(function(element) {
                 $('#reservationId').append(`<option>${element.id}</option>`);

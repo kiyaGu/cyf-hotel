@@ -57,7 +57,7 @@
         //populate the room type id field with data from the server
         $.ajax({
             method: 'GET',
-            url: '/api/4-discount'
+            url: '/api/discount'
         }).done((data) => {
             data.data.forEach(function(element) {
                 $('#roomTypeId').append(`<option>${element.id}</option>`);
