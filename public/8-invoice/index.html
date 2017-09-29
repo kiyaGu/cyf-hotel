@@ -52,7 +52,10 @@
             </div>
         </div>
     </div>
-
+    <div>
+        <ul id="error" style="list-style: none; padding-left:100px">
+        </ul>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -76,31 +79,51 @@
 
 
         $('#reservationId').on('change', function() {
-            console.log(dataCollected)
             let index = document.getElementById('reservationId').selectedIndex
             $('#totalRoomCharge').val(dataCollected.data[index].roomCharge);
         })
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
-            $.ajax({
-                method: 'PUT',
-                url: '/api/invoice?reservationId=' + $('#reservationId option:selected').text(),
-                data: JSON.stringify({
-                    invoice: {
-                        surcharges: $('#surcharges').val(),
-                        total: $('#totalRoomCharge').val(),
-                        paid: $('#paid').val(),
-                    }
-                }),
-                contentType: 'application/json',
-                dataType: 'json'
-            }).done(function(response) {
-                $('#reservationId').prop('selectedIndex', 0);
-                $('#totalRoomCharge').val(dataCollected.data[0].roomCharge);
-                $('#surcharges').val('');
-                $('#paid').val('');
-                alert(response.message);
-            });
+            //check if the error was alrady displayed
+            //if so clear it and display the new error, if there is
+            if ($('#error').has('li'))
+                $('#error').empty();
+            // input validation
+            //push an error message for each empty field
+            let error = [];
+            if ($('#surcharges').val() == "") {
+                error.push("Please, fill the surcharges field. If there is none put ZERO (0)");
+            }
+            if ($('#paid').val() == "") {
+                error.push("Please, specify if the payment is made or not");
+            }
+
+            //if there is error display it as a list
+            if (error.length > 0) {
+                error.forEach(element => {
+                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                })
+            } else {
+                $.ajax({
+                    method: 'PUT',
+                    url: '/api/invoice?reservationId=' + $('#reservationId option:selected').text(),
+                    data: JSON.stringify({
+                        invoice: {
+                            surcharges: $('#surcharges').val(),
+                            total: $('#totalRoomCharge').val(),
+                            paid: $('#paid').val(),
+                        }
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).done(function(response) {
+                    $('#reservationId').prop('selectedIndex', 0);
+                    $('#totalRoomCharge').val(dataCollected.data[0].roomCharge);
+                    $('#surcharges').val('');
+                    $('#paid').val('');
+                    alert(response.message);
+                });
+            }
         });
     </script>
 </body>
