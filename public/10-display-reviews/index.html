@@ -5,9 +5,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 </head>
 
 <body>
@@ -39,7 +38,14 @@
                             <td>3</td>
                             <td>
                                 <ul style="list-style : none" id="comment">
-
+                                    <li>
+                                        <blockquote class="blockquote">
+                                            <p class="mb-0">The Bed wasn't made properly</p>
+                                        </blockquote>
+                                        <footer class="blockquote-footer" style="padding-left:20px"> Ms. Jade
+                                            <cite title="Source Title">&dash; 2017-09-15 </cite>
+                                        </footer>
+                                    </li>
                                 </ul>
                             </td>
                         </tr>
@@ -64,11 +70,11 @@
                 <ul style="list-style:none">
                     <li>
                         <blockquote class="blockquote">
-                            <p>{{comment}}</p>
-                            <footer class="blockquote-footer"> {{fullName}}
-                                <cite title="Source Title">&dash; {{review_date}} </cite>
-                            </footer>
+                            <p class="mb-0">{{comment}}</p>
                         </blockquote>
+                        <footer class="blockquote-footer" style="padding-left:20px"> {{fullName}}
+                            <cite title="Source Title">&dash; {{review_date}} </cite>
+                        </footer>
                     </li>
                 </ul>
             </td>
