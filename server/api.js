@@ -39,8 +39,7 @@ router.post('/customers', function(req, res) {
         if (err) {
             console.error(err)
         } else if (response.length > 0) {
-            res.status(200).json({ message: `A customer with the email address ${response[0].email} is already registerd with us.
-                                   if that is You please, log in` });
+            res.status(200).json({ message: `A customer with the email address ${response[0].email} is already registerd with us. if that is You please, log in` });
         } else {
             const sqlInsert = `INSERT INTO customers (title,firstname,surname,email) 
         VALUES (?,?,?,?)`;
@@ -113,13 +112,13 @@ router.put('/discount', function(req, res) {
     const sqlSelect = `SELECT * from room_types 
                 WHERE id = ?`;
     //req.query.id => to get the id that is passed as part of the url
-    db.all(sqlSelect, [req.query.id], (err, currentPrice) => {
-        console.log(currentPrice)
-            //assumption: the discount is given in % as 10 means 10% and the discount is done on the 
-            //the current price if the current and the original price are equal it is a new discount on the original price else
-            // it is it is a further reduction on the current_price
+    db.get(sqlSelect, [req.query.id], (err, currentPrice) => {
+
+        //assumption: the discount is given in % as 10 means 10% and the discount is done on the 
+        //the current price if the current and the original price are equal it is a new discount on the original price else
+        // it is it is a further reduction on the current_price
         let newPrice,
-            current_price = currentPrice[0].current_price,
+            current_price = currentPrice.current_price,
             discountRate = req.body.discount;
 
         newPrice = Math.floor(current_price - (current_price * (discountRate / 100)));
@@ -162,8 +161,8 @@ router.post('/reservations', function(req, res) {
         } else {
             const sql = `SELECT current_price from room_types
                             WHERE id = ? `;
-            db.all(sql, [`${ roomId }`], (err, currentPrice) => {
-                let price = currentPrice[0].current_price;
+            db.get(sql, [`${ roomId }`], (err, currentPrice) => {
+                let price = currentPrice.current_price;
                 const reservationSql = `
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
                             VALUES( ? , ? , ? , ? , ? )
@@ -203,6 +202,7 @@ router.get('/reservations', function(req, res) {
                INNER JOIN reservations 
                on customers.id = reservations.customer_id
                WHERE customers.id = ? OR customers.surname = ?`;
+    //a customer can have more than one reservation
     db.all(sql, [req.query.id, req.query.name], (err, reservation) => {
         if (err) {
             console.error(err)
