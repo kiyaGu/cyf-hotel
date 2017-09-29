@@ -28,7 +28,8 @@
                         <tr>
                             <th>#</th>
                             <th>Room Type</th>
-                            <th>Average Rating(out of 5)</th>
+                            <th>Rating(out of 5)</th>
+                            <th>Comment</th>
                         </tr>
                     </thead>
                     <tbody id="rows">
@@ -36,6 +37,11 @@
                             <th scope="row">1</th>
                             <td>Standard</td>
                             <td>3</td>
+                            <td>
+                                <ul style="list-style : none" id="comment">
+
+                                </ul>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -54,6 +60,18 @@
             <th scope="row">{{ id }}</th>
             <td>{{ roomType }}</td>
             <td>{{ rating }}</td>
+            <td>
+                <ul style="list-style:none">
+                    <li>
+                        <blockquote class="blockquote">
+                            <p>{{comment}}</p>
+                            <footer class="blockquote-footer"> {{fullName}}
+                                <cite title="Source Title">&dash; {{review_date}} </cite>
+                            </footer>
+                        </blockquote>
+                    </li>
+                </ul>
+            </td>
         </tr>
     </script>
     <script type="text/javascript">
@@ -66,6 +84,8 @@
                 const source = $("#template").html();
                 const template = Handlebars.compile(source);
                 const rows = response.reviews.map(function(review) {
+
+
                     review.id = response.reviews.indexOf(review) + 1;
                     return template(review);
                 });

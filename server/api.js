@@ -208,9 +208,9 @@ router.post('/reservations', function(req, res) {
             //get the room id the its current price
             const sql = `SELECT current_price,id from room_types
                             WHERE type_name = ? `;
-            db.get(sql, [`${ roomTypeName }`], (err, currentPrice) => {
-                let price = currentPrice.current_price;
-                let roomId = currentPrice.id;
+            db.get(sql, [`${ roomTypeName }`], (err, data) => {
+                let price = data.current_price;
+                let roomId = data.id;
 
                 const reservationSql = `
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
@@ -353,30 +353,38 @@ router.post('/reviews', function(req, res) {
     // TODO read req.body.review
     const {
         customerId,
-        roomTypeId,
+        roomTypeName,
         rating,
-        comment,
-        reviewDate
+        comment
     } = req.body.review;
-    const sqlInsert = `INSERT INTO reviews (customer_id,room_type_id,rating,comment,review_date)
-                        VALUES(?,?,?,?,?)`;
-    db.run(sqlInsert, [`${customerId}`, `${roomTypeId}`, `${rating}`, `${comment}`, `${reviewDate}`], (err, invoice) => {
-        if (err) {
-            res.status(200).json({
-                message: "error: " + err
-            });
-        } else {
-            res.status(200).json({ message: "Your review has been submited successfully!" });
-        }
+    //get the room_type_id
+    const sql = `SELECT id from room_types
+    WHERE type_name = ? `;
+    db.get(sql, [`${ roomTypeName }`], (err, data) => {
+        let room_type_id = data.id;
+        const sqlInsert = `INSERT INTO reviews (customer_id,room_type_id,rating,comment,review_date)
+                        VALUES(?,?,?,?,date('now'))`;
+        db.run(sqlInsert, [`${customerId}`, room_type_id, `${rating}`, `${comment}`], (err, invoice) => {
+            if (err) {
+                res.status(200).json({
+                    message: "error: " + err
+                });
+            } else {
+                res.status(200).json({ message: "Your review has been submited successfully!" });
+            }
+        });
     });
 });
 router.get('/reviews', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
-        const sqlSelect = `SELECT type_name AS roomType, AVG(rating) AS rating FROM room_types 
-                   INNER JOIN reviews 
-                   ON room_types.id = reviews.room_type_id
-                   GROUP BY reviews.room_type_id`;
+        //calculate AVG and round it to 2 decimal places
+        const sqlSelect = `SELECT firstname||" " ||surname AS fullName , type_name AS roomType, rating, comment, review_date FROM room_types 
+                          INNER JOIN reviews 
+                          ON room_types.id = reviews.room_type_id
+                          INNER JOIN customers
+                          ON customers.id = reviews.customer_id
+                          ORDER BY roomtype`;
         db.all(sqlSelect, [], (err, rows) => {
             res.status(200).json({
                 reviews: rows
