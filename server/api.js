@@ -210,7 +210,8 @@ router.post('/reservations', function(req, res) {
                             WHERE type_name = ? `;
             db.get(sql, [`${ roomTypeName }`], (err, currentPrice) => {
                 let price = currentPrice.current_price;
-                let roomId = currentPrice.id
+                let roomId = currentPrice.id;
+
                 const reservationSql = `
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
                             VALUES( ? , ? , ? , ? , ? )
@@ -308,29 +309,35 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
 });
 router.get('/invoice', (req, res) => {
     //TODO populate the id field with data from the server
-    const sqlSelectReservationId = `SELECT id FROM reservations`;
+    //to calculate the number of days the customer stayed
+    const sqlSelectReservationId = `SELECT id,julianday(check_out_date) -julianday(check_in_date) AS numberOfStay,room_price FROM reservations`;
     db.all(sqlSelectReservationId, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
-            res.status(200).json({ data: data });
+            let responseData = [];
+            data.forEach(element => {
+                responseData.push({
+                    id: element.id,
+                    roomCharge: (element.numberOfStay * element.room_price) / 100
+                });
+            });
+            res.status(200).json({ data: responseData });
         }
     });
 });
 router.put('/invoice', function(req, res) {
     // TODO read req.query.reservationId and req.body.invoice and insert into DB
     const reservationId = req.query.reservationId;
-    console.log(req.body.invoice.invoiceDate)
     const {
         surcharges,
         total,
-        invoiceDate,
         paid
     } = req.body.invoice;
     const sqlInsert = `INSERT INTO invoices (reservation_id,surcharges,total,invoice_date_time,paid)
-               VALUES(?,?,?,?,?)`;
+               VALUES(?,?,?,date('now'),?)`;
 
-    db.run(sqlInsert, [reservationId, `${surcharges}`, `${total}`, `${invoiceDate}`, `${paid}`], (err, invoice) => {
+    db.run(sqlInsert, [reservationId, `${surcharges}`, `${total}`, `${paid}`], (err, invoice) => {
         if (err) {
             res.status(200).json({
                 message: "error: " + err
