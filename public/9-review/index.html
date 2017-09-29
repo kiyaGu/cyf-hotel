@@ -60,7 +60,10 @@
             </div>
         </div>
     </div>
-
+    <div>
+        <ul id="error" style="list-style: none; padding-left:100px">
+        </ul>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -78,28 +81,46 @@
         });
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
+            //check if the error was alrady displayed
+            //if so clear it and display the new error, if there is
+            if ($('#error').has('li'))
+                $('#error').empty();
+            // input validation
+            //push an error message for each empty field
+            let error = [];
+            if ($('#customerId').val() == "")
+                error.push("Please, fill the customer Id field");
+            if ($('#comment').val() == "")
+                error.push("Please, fill the comment field");
+            //display each error as a list
+            if (error.length > 0) {
+                error.forEach(element => {
+                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                })
+            } else {
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/reviews',
+                    data: JSON.stringify({
+                        review: {
+                            customerId: $('#customerId').val(),
+                            roomTypeName: $('#roomTypeName option:selected').text(),
+                            rating: $('#rating').val(),
+                            comment: $('#comment').val()
+                        }
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).done(function(response) {
+                    $('#customerId').val('');
+                    $('#roomTypeName').prop('selectedIndex', 0);
+                    $('#rating').prop('selectedIndex', 0);;
+                    $('#comment').val('');
 
-            $.ajax({
-                method: 'POST',
-                url: '/api/reviews',
-                data: JSON.stringify({
-                    review: {
-                        customerId: $('#customerId').val(),
-                        roomTypeName: $('#roomTypeName option:selected').text(),
-                        rating: $('#rating').val(),
-                        comment: $('#comment').val()
-                    }
-                }),
-                contentType: 'application/json',
-                dataType: 'json'
-            }).done(function(response) {
-                $('#customerId').val('');
-                $('#roomTypeName').prop('selectedIndex', 0);
-                $('#rating').prop('selectedIndex', 0);;
-                $('#comment').val('');
+                    alert(response.message);
+                });
+            }
 
-                alert(response.message);
-            });
         });
     </script>
 </body>

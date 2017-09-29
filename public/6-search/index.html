@@ -103,12 +103,10 @@
             method: 'GET',
             url: '/api/6-search'
         }).done((data) => {
-
-            data.customer_id.forEach(function(element) {
+            data.forEach(function(element) {
+                //populate the customer id
                 $('#customerId').append(`<option>${element.id}</option>`);
-            });
-            //populate the customername
-            data.customers_name.forEach(function(element) {
+                //populate the customer fullname
                 $('#customerName').append(`<option>${element.fullName}</option>`);
             });
         });

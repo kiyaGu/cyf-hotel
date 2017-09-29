@@ -45,7 +45,10 @@
             </div>
         </div>
     </div>
-
+    <div>
+        <ul id="error" style="list-style: none; padding-left:100px">
+        </ul>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -54,31 +57,61 @@
     <script type="text/javascript">
         $('.fn-submit').on('click', function(event) {
             event.preventDefault();
+            if ($('#error').has('li'))
+                $('#error').empty();
+            // input validation
+            //push an error message for each empty field
+            let error = [];
+            if ($('#title').val() == "") {
+                error.push("Please, fill the title field");
+            }
+            if ($('#firstname').val() == "") {
+                error.push("Please, fill the first name field");
+            }
+            if ($('#surname').val() == "") {
+                error.push("Please, fill the last name field");
+            }
+            if ($('#email').val() == "") {
+                error.push("Please, fill the email field");
+            } else {
+                const email = $('#email').val();
+                // regular expression to validate if the email address is in a valid format
+                let emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                //verify the email address and notify success or error
+                if (!(emailRegExp.test(email))) {
+                    error.push("The email address <span class='text-muted'><i><u>" + email + "</u></i></span> is not valid");
+                }
+            }
+            //display each error as a list
+            if (error.length > 0) {
+                error.forEach(element => {
+                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                })
+            } else {
+                $.ajax({
+                    method: 'POST',
+                    data: JSON.stringify({
+                        customer: {
+                            title: $('#title').val(),
+                            firstname: $('#firstname').val(),
+                            surname: $('#surname').val(),
+                            email: $('#email').val()
+                        }
+                    }),
+                    url: '/api/customers',
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).done(function(response) {
+                    $('#title').val('');
+                    $('#firstname').val('');
+                    $('#surname').val('');
+                    $('#email').val('');
 
-            $.ajax({
-                method: 'POST',
-                data: JSON.stringify({
-                    customer: {
-                        title: $('#title').val(),
-                        firstname: $('#firstname').val(),
-                        surname: $('#surname').val(),
-                        email: $('#email').val()
-                    }
-                }),
-                url: '/api/customers',
-                contentType: 'application/json',
-                dataType: 'json'
-            }).done(function(response) {
-                $('#title').val('');
-                $('#firstname').val('');
-                $('#surname').val('');
-                $('#email').val('');
-
-                alert(response.message)
-            }).fail(function(error) {
-
-                console.log(error);
-            });
+                    alert(response.message)
+                }).fail(function(error) {
+                    console.log(error);
+                });
+            }
         });
     </script>
 </body>

@@ -9,9 +9,7 @@ let db = new sqlite3.Database(filename);
 router.get('/customers', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
-
         const sql = 'SELECT * from customers';
-
         db.all(sql, [], (err, rows) => {
             if (err) {
                 console.error(err)
@@ -232,32 +230,16 @@ router.post('/reservations', function(req, res) {
 
 });
 router.get('/6-search', (req, res) => {
-    //TODO populate the customer id field with data from the server
-    const sqlSelectRoomIds = `SELECT id FROM customers`;
-    let responseData = {};
-    //get all rooms type name
-    db.all(sqlSelectRoomIds, [], (err, data) => {
-        if (err) {
-            console.error(err)
-        } else {
-            responseData.customer_id = data;
-        }
-    });
-    //get all customers name
-    const sqlSelectCustomerName = `SELECT firstname, surname FROM customers`;
+    //TODO populate the customer id and name field with data from the server
+    //get all customers id and name
+    //concatenate firstname and surname and return them as fullname
+    const sqlSelectCustomerName = `SELECT firstname|| " " ||surname AS fullName, id FROM customers`;
     db.all(sqlSelectCustomerName, [], (err, data) => {
         if (err) {
             console.error(err)
         } else {
             //construct the full name of each customer
-            let customersName = [];
-            data.forEach((element) => {
-                customersName.push({
-                    fullName: element.firstname + " " + element.surname
-                });
-            });
-            responseData.customers_name = customersName;
-            res.status(200).send(responseData);
+            res.status(200).send(data);
         }
     });
 
@@ -265,7 +247,6 @@ router.get('/6-search', (req, res) => {
 router.get('/search', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
     // the search by name is done through using surname
-
 
     const sql = `SELECT title, firstname, surname, email,
                room_id AS roomId, check_in_date AS checkInDate, check_out_date AS checkOutDate
@@ -378,8 +359,8 @@ router.post('/reviews', function(req, res) {
 router.get('/reviews', function(req, res) {
     // TODO comment out response above and uncomment the below
     db.serialize(function() {
-        //calculate AVG and round it to 2 decimal places
-        const sqlSelect = `SELECT firstname||" " ||surname AS fullName , type_name AS roomType, rating, comment, review_date FROM room_types 
+        //concatenate firstname and surname and return them as fullname
+        const sqlSelect = `SELECT firstname|| " " ||surname AS fullName , type_name AS roomType, rating, comment, review_date FROM room_types 
                           INNER JOIN reviews 
                           ON room_types.id = reviews.room_type_id
                           INNER JOIN customers
