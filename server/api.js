@@ -140,11 +140,40 @@ router.put('/discount', function(req, res) {
 
 });
 
-
+router.get('/reservations', (req, res) => {
+    //TODO populate the id field with data from the server
+    const sqlSelectRoomIds = `SELECT type_name FROM room_types`;
+    let responseData = {};
+    //get all rooms type name
+    db.all(sqlSelectRoomIds, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            responseData.type_name = data;
+        }
+    });
+    //get all customers name
+    const sqlSelectCustomerName = `SELECT firstname, surname FROM customers`;
+    db.all(sqlSelectCustomerName, [], (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            //construct the full name of each customer
+            let customersName = [];
+            data.forEach((element) => {
+                customersName.push({
+                    fullName: element.firstname + " " + element.surname
+                });
+            });
+            responseData.customers_name = customersName;
+            res.status(200).send(responseData);
+        }
+    });
+});
 router.post('/reservations', function(req, res) {
     // TODO read req.body.reservation, look up price by room id and insert reservation into DB
     const {
-        customerId,
+        customerName,
         roomTypeName,
         checkInDate,
         checkOutDate
@@ -163,6 +192,20 @@ router.post('/reservations', function(req, res) {
             });
         } else {
             //
+            const sqlSelectACustomerId = `SELECT id FROM customers 
+                                         WHERE surname = ?`;
+            //get the surname from the passed fullname
+            const surname = `${customerName}`.split(" ")[1];
+            let customerID;
+            //get the customer id with the given surname
+            db.get(sqlSelectACustomerId, [surname], (err, data) => {
+                if (err) {
+                    console.error(err)
+                } else {
+                    customerID = data.id;
+                }
+            });
+            //get the room id the its current price
             const sql = `SELECT current_price,id from room_types
                             WHERE type_name = ? `;
             db.get(sql, [`${ roomTypeName }`], (err, currentPrice) => {
@@ -172,7 +215,7 @@ router.post('/reservations', function(req, res) {
                             INSERT INTO reservations(customer_id, room_id, check_in_date, check_out_date, room_price)
                             VALUES( ? , ? , ? , ? , ? )
                             `;
-                db.run(reservationSql, [`${ customerId }`, roomId, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
+                db.run(reservationSql, [customerID, roomId, `${checkInDate }`, `${ checkOutDate }`, price], (err) => {
                     if (err) {
                         res.status(200).json({
                             message: "error: " + err
