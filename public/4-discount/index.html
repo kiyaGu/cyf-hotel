@@ -77,6 +77,8 @@
             let error = [];
             if ($('#discount').val() == "") {
                 error.push("Please, fill the discount field");
+            } else if (isNaN($('#discount').val())) {
+                error.push("Please, put only digits in the discount field");
             }
 
             //if there is error display it as a list
