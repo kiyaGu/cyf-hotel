@@ -100,18 +100,29 @@
 
                 $('#rows').html(rows.join());
             }
-
             $('.fn-submit').on('click', function(event) {
                 event.preventDefault();
+
                 //check if the error was alrady displayed
                 //if so clear it and display the new error, if there is
                 if ($('#error').has('li'))
                     $('#error').empty();
+                //date validation function
+                function validateDate(givenDate) {
+                    let reg = new RegExp('201[7-8]{1}-[0-1]{1}[0-9]{1}-[0-3]{1}[0-9]{1}');
+                    return reg.test(givenDate);
+                }
                 // input validation
                 //push an error message for each empty field
                 let error = [];
-                if ($('#arrivalDate').val() == "") {
+                let arrivalDate = $('#arrivalDate').val();
+                if (arrivalDate == "") {
                     error.push("Please, fill the arrival date field");
+                } else if (!(validateDate(arrivalDate))) {
+                    error.push(`<span class='text-muted'>
+                                    <i><u>"  ${arrivalDate}  "</u></i>
+                                </span> is not valid. Please, put your date as \"YYYY&dash;MM&dash;DD\" 
+                                or the year should be in 2017 or 2018`);
                 }
 
                 //if there is error display it as a list

@@ -233,27 +233,27 @@
                         $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
                     })
                 } else {
-                    // $.ajax({
-                    //     method: 'POST',
-                    //     data: JSON.stringify({
-                    //         reservation: {
-                    //             customerName: $('#customerName option:selected').text(),
-                    //             roomTypeName: $('#roomTypeName option:selected').text(),
-                    //             checkInDate: $('#checkInDate').val(),
-                    //             checkOutDate: $('#checkOutDate').val()
-                    //         }
-                    //     }),
-                    //     url: '/api/reservations',
-                    //     contentType: 'application/json',
-                    //     dataType: 'json'
-                    // }).done(function(response) {
-                    //     $('#customerName').prop('selectedIndex', 0);
-                    //     $('#roomTypeName').prop('selectedIndex', 0);
-                    //     $('#checkInDate').val('');
-                    //     $('#checkOutDate').val('');
+                    $.ajax({
+                        method: 'POST',
+                        data: JSON.stringify({
+                            reservation: {
+                                customerName: $('#customerName option:selected').text(),
+                                roomTypeName: $('#roomTypeName option:selected').text(),
+                                checkInDate: $('#checkInDate').val(),
+                                checkOutDate: $('#checkOutDate').val()
+                            }
+                        }),
+                        url: '/api/reservations',
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    }).done(function(response) {
+                        $('#customerName').prop('selectedIndex', 0);
+                        $('#roomTypeName').prop('selectedIndex', 0);
+                        $('#checkInDate').val('');
+                        $('#checkOutDate').val('');
 
-                    //     alert(response.message);
-                    // });
+                        alert(response.message);
+                    });
                 }
             });
         }); //document.ready()
