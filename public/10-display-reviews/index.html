@@ -22,20 +22,20 @@
         </div>
         <div class="row">
             <div class="col">
-                <table class="table">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Room Type</th>
-                            <th>Rating(out of 5)</th>
-                            <th>Comment</th>
+                            <th class="text-center">Room Type</th>
+                            <th class="text-center">Rating(out of 5)</th>
+                            <th class="text-center">Comment</th>
                         </tr>
                     </thead>
                     <tbody id="rows">
                         <tr>
                             <th scope="row">1</th>
-                            <td>Standard</td>
-                            <td>3</td>
+                            <td class="text-center">Standard</td>
+                            <td class="text-center">3</td>
                             <td>
                                 <ul style="list-style : none" id="comment">
                                     <li>
@@ -63,18 +63,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
     <script id="template" type="text/x-handlebars-template">
         <tr>
-            <th scope="row">{{ id }}</th>
-            <td>{{ roomType }}</td>
-            <td>{{ rating }}</td>
-            <td>
+            <th scope="row" class="align-middle">{{ id }}</th>
+            <td class="text-center align-middle">{{ roomType }}</td>
+            <td class="text-center align-middle">{{ rating }}</td>
+            <td class="align-middle">
                 <ul style="list-style:none">
                     <li>
+                        {{#each comments}}
                         <blockquote class="blockquote">
-                            <p class="mb-0">{{comment}}</p>
+                            <p class="mb-0">{{this.comment}}</p>
                         </blockquote>
-                        <footer class="blockquote-footer" style="padding-left:20px"> {{fullName}}
-                            <cite title="Source Title">&dash; {{review_date}} </cite>
+                        <footer class="blockquote-footer" style="padding-left:20px"> {{this.by}}
+                            <cite title="Source Title">&dash; {{this.date}} </cite>
                         </footer>
+                        {{/each}}
                     </li>
                 </ul>
             </td>
@@ -88,13 +90,60 @@
                 url: '/api/reviews'
             }).done(function(response) {
                 const source = $("#template").html();
-                const template = Handlebars.compile(source);
-                const rows = response.reviews.map(function(review) {
-                    review.id = response.reviews.indexOf(review) + 1;
-                    return template(review);
+                //to group the data based on the room type
+                let myMap = new Map();
+                //to be used while calculating the average later
+                let count;
+                response.reviews.map(review => {
+                    if (!(myMap.has(review.roomType))) {
+                        count = 1;
+                        //to group comments given about each room type
+                        let comments = [];
+                        comments.push({
+                            comment: review.comment,
+                            by: review.fullName,
+                            date: review.review_date
+                        });
+                        //map comments, total rating with the room type 
+                        myMap.set(review.roomType, {
+                            id: myMap.size + 1,
+                            rating: review.rating,
+                            count: count,
+                            comments: comments
+                        })
+                    } else {
+                        //push the additional comments for each room type
+                        myMap.get(review.roomType).comments.push({
+                            comment: review.comment,
+                            by: review.fullName,
+                            date: review.review_date
+                        });
+                        //if the room type is already part of myMap add the new rating to the previous one
+                        // increase the count => will be used to calculate average later
+                        myMap.set(review.roomType, {
+                            //keep the id as it was
+                            id: myMap.get(review.roomType).id,
+                            rating: myMap.get(review.roomType).rating + review.rating,
+                            count: ++count,
+                            //modify the comment with the new comment array
+                            comments: myMap.get(review.roomType).comments
+                        });
+                    }
                 });
 
-                $('#rows').html(rows.join());
+                const template = Handlebars.compile(source);
+                let rows = [];
+                //for each room type compile the template with the given value
+                myMap.forEach((value, key) => {
+                    rows.push(template({
+                        roomType: key,
+                        id: value.id,
+                        rating: parseFloat((value.rating / value.count).toFixed(2)),
+                        comments: value.comments
+                    }))
+                });
+                //join the compiled templates as string and push as table rows in the tbody#rows
+                $('#rows').html(rows.join(""));
             });
         });
     </script>

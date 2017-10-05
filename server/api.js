@@ -348,7 +348,7 @@ router.get('/reviews', function(req, res) {
         const sqlSelect = `SELECT firstname|| " " ||surname AS fullName , type_name AS roomType, rating, comment, review_date FROM room_types 
                           INNER JOIN reviews 
                           ON room_types.id = reviews.room_type_id
-                          INNER JOIN customers
+                          LEFT JOIN customers
                           ON customers.id = reviews.customer_id
                           ORDER BY roomtype`;
         db.all(sqlSelect, [], (err, rows) => {
