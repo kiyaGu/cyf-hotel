@@ -102,13 +102,13 @@
             //populate the customer id field with data from the server
             $.ajax({
                 method: 'GET',
-                url: '/api/6-search'
+                url: '/api/customers'
             }).done((data) => {
-                data.forEach(function(element) {
+                data.customers.forEach(function(element) {
                     //populate the customer id
                     $('#customerId').append(`<option>${element.id}</option>`);
                     //populate the customer fullname
-                    $('#customerName').append(`<option>${element.fullName}</option>`);
+                    $('#customerName').append(`<option>${element.firstname} ${element.surname}</option>`);
                 });
             });
 

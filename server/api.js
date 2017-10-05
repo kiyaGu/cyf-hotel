@@ -229,21 +229,6 @@ router.post('/reservations', function(req, res) {
     });
 
 });
-router.get('/6-search', (req, res) => {
-    //TODO populate the customer id and name field with data from the server
-    //get all customers id and name
-    //concatenate firstname and surname and return them as fullname
-    const sqlSelectCustomerName = `SELECT firstname|| " " ||surname AS fullName, id FROM customers`;
-    db.all(sqlSelectCustomerName, [], (err, data) => {
-        if (err) {
-            console.error(err)
-        } else {
-            //construct the full name of each customer
-            res.status(200).send(data);
-        }
-    });
-
-});
 router.get('/search', function(req, res) {
     // TODO read req.query.name or req.query.id to look up reservations and return
     // the search by name is done through using surname
