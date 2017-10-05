@@ -89,44 +89,46 @@
     </script>
 
     <script type="text/javascript">
-        function insertResponse(response) {
-            const source = $("#template").html();
-            const template = Handlebars.compile(source);
+        $('document').ready(function() {
+            function insertResponse(response) {
+                const source = $("#template").html();
+                const template = Handlebars.compile(source);
 
-            const rows = response.reservations.map(function(reservation) {
-                return template(reservation);
-            });
-
-            $('#rows').html(rows.join());
-        }
-
-        $('.fn-submit').on('click', function(event) {
-            event.preventDefault();
-            //check if the error was alrady displayed
-            //if so clear it and display the new error, if there is
-            if ($('#error').has('li'))
-                $('#error').empty();
-            // input validation
-            //push an error message for each empty field
-            let error = [];
-            if ($('#arrivalDate').val() == "") {
-                error.push("Please, fill the arrival date field");
-            }
-
-            //if there is error display it as a list
-            if (error.length > 0) {
-                error.forEach(element => {
-                    $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
-                })
-            } else {
-                $.ajax({
-                    method: 'GET',
-                    url: '/api/reservations/date-from/' + $('#arrivalDate').val()
-                }).done(function(response) {
-                    insertResponse(response);
+                const rows = response.reservations.map(function(reservation) {
+                    return template(reservation);
                 });
+
+                $('#rows').html(rows.join());
             }
-        });
+
+            $('.fn-submit').on('click', function(event) {
+                event.preventDefault();
+                //check if the error was alrady displayed
+                //if so clear it and display the new error, if there is
+                if ($('#error').has('li'))
+                    $('#error').empty();
+                // input validation
+                //push an error message for each empty field
+                let error = [];
+                if ($('#arrivalDate').val() == "") {
+                    error.push("Please, fill the arrival date field");
+                }
+
+                //if there is error display it as a list
+                if (error.length > 0) {
+                    error.forEach(element => {
+                        $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                    })
+                } else {
+                    $.ajax({
+                        method: 'GET',
+                        url: '/api/reservations/date-from/' + $('#arrivalDate').val()
+                    }).done(function(response) {
+                        insertResponse(response);
+                    });
+                }
+            });
+        }); //document.ready()
     </script>
 </body>
 

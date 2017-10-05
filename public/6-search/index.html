@@ -40,7 +40,7 @@
                             <td>
                                 <!-- <input id="name" type="text" class="form-control" placeholder="Customer name" name="name" /> -->
                                 <select name="customerName" id="customerName" class="form-control">
-                                    </select>
+                                </select>
                             </td>
                             <td><button type="submit" class="btn btn-primary fn-submit-name">Search by customer name</button></td>
                         </tr>
@@ -98,50 +98,52 @@
     </script>
 
     <script type="text/javascript">
-        //populate the customer id field with data from the server
-        $.ajax({
-            method: 'GET',
-            url: '/api/6-search'
-        }).done((data) => {
-            data.forEach(function(element) {
-                //populate the customer id
-                $('#customerId').append(`<option>${element.id}</option>`);
-                //populate the customer fullname
-                $('#customerName').append(`<option>${element.fullName}</option>`);
-            });
-        });
-
-        function insertResponse(response) {
-            const source = $("#template").html();
-            const template = Handlebars.compile(source);
-            const rows = response.reservations.map(function(reservation) {
-                return template(reservation);
-            });
-
-            $('#rows').html(rows.join());
-        }
-
-        $('.fn-submit-id').on('click', function(event) {
-            event.preventDefault();
-
+        $('document').ready(function() {
+            //populate the customer id field with data from the server
             $.ajax({
                 method: 'GET',
-                url: '/api/search?id=' + $('#customerId option:selected').text()
-            }).done(function(response) {
-                insertResponse(response);
+                url: '/api/6-search'
+            }).done((data) => {
+                data.forEach(function(element) {
+                    //populate the customer id
+                    $('#customerId').append(`<option>${element.id}</option>`);
+                    //populate the customer fullname
+                    $('#customerName').append(`<option>${element.fullName}</option>`);
+                });
             });
-        });
 
-        $('.fn-submit-name').on('click', function(event) {
-            event.preventDefault();
+            function insertResponse(response) {
+                const source = $("#template").html();
+                const template = Handlebars.compile(source);
+                const rows = response.reservations.map(function(reservation) {
+                    return template(reservation);
+                });
 
-            $.ajax({
-                method: 'GET',
-                url: '/api/search?customerName=' + $('#customerName option:selected').text()
-            }).done(function(response) {
-                insertResponse(response);
+                $('#rows').html(rows.join());
+            }
+
+            $('.fn-submit-id').on('click', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    method: 'GET',
+                    url: '/api/search?id=' + $('#customerId option:selected').text()
+                }).done(function(response) {
+                    insertResponse(response);
+                });
             });
-        });
+
+            $('.fn-submit-name').on('click', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    method: 'GET',
+                    url: '/api/search?customerName=' + $('#customerName option:selected').text()
+                }).done(function(response) {
+                    insertResponse(response);
+                });
+            });
+        }); //document.ready()
     </script>
 </body>
 

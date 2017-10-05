@@ -291,7 +291,7 @@ router.get('/reservations/date-from/:dateFrom', function(req, res) {
 router.get('/invoice', (req, res) => {
     //TODO populate the id field with data from the server
     //to calculate the number of days the customer stayed
-    const sqlSelectReservationId = `SELECT id,julianday(check_out_date) -julianday(check_in_date) AS numberOfStay,room_price FROM reservations`;
+    const sqlSelectReservationId = `SELECT id,julianday(check_out_date) - julianday(check_in_date) AS numberOfStay,room_price FROM reservations`;
     db.all(sqlSelectReservationId, [], (err, data) => {
         if (err) {
             console.error(err)
