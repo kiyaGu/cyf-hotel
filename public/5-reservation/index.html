@@ -104,7 +104,7 @@
                     //convert them to numbers
                     .map(Number);
             }
-
+            // to get the string / name of each month given in digit
             function getNameOfMonth(month) {
                 switch (month) {
                     case 1:
@@ -133,7 +133,7 @@
                         return "December";
                 }
             }
-            //validate the month is forward
+            //given the this year validate the month is the current one or upcoming
             function validateMonth(givenDateArray) {
                 let now = getTodaysDate(),
                     thisYear = now[0],
@@ -145,7 +145,7 @@
                 if (thisYear === givenYear)
                     return thisMonth <= givenMonth;
             }
-            //validate the day is forward 
+            //given current month validate the day is upcoming 
             function validateDay(givenDateArray) {
                 let now = getTodaysDate(),
                     thisMonth = now[1],
@@ -154,13 +154,12 @@
                     givenDay = givenDateArray[2];
                 //if the month is this month
                 //the day should be today or the coming days from this month
-
                 if (thisMonth === givenMonth)
                     return thisDay <= givenDay;
                 else
                     return true;
             }
-
+            //checkout month should always be upcoming or the same month
             function validateCheckoutMonth(givenCheckInDateArray, givenCheckOutDateArray) {
                 let checkInYear = givenCheckInDateArray[0],
                     checkInMonth = givenCheckInDateArray[1],
@@ -169,7 +168,8 @@
                 if (checkInYear === checkOutYear)
                     return checkInMonth <= checkOutMonth;
             }
-
+            //when checkIn month and checkout month are equal, checkout date should always be upcoming
+            //or same as checkIn date
             function validateCheckoutDay(givenCheckInDateArray, givenCheckOutDateArray) {
                 let checkInMonth = givenCheckInDateArray[1],
                     checkInDay = givenCheckInDateArray[2],
@@ -192,16 +192,26 @@
                 if (checkInDate == "") {
                     error.push("Please, fill the check in date field");
                 } else {
+                    //check format and value
                     if (!(validateDate(checkInDate))) {
-                        error.push("<span class='text-muted'><i><u>" + checkInDate + "</u></i></span> is not valid. Please, put your date as \"YYYY&dash;MM&dash;DD\" or the year should be in 2017 or 2018");
+                        error.push(`<span class='text-muted'>
+                                        <i><u>${checkInDate}</u></i>
+                                    </span> is not valid. Please, put your date as "YYYY&dash;MM&dash;DD" 
+                                    or the year should be in 2017 or 2018`);
                     } else {
                         let splitedDate = splitDate(checkInDate);
                         let now = getTodaysDate();
                         if (!(validateMonth(splitedDate))) {
-                            error.push("<span class='text-muted'><i><u>" + splitedDate[1] + "</u></i></span> is not valid. You can\'t book for the " + getNameOfMonth(splitedDate[1]) + " as we are currently on " + getNameOfMonth(now[1]));
+                            error.push(`<span class='text-muted'>
+                                            <i><u>${splitedDate[1]}</u></i>
+                                        </span> is not valid. You can&#39;t book for the ${getNameOfMonth(splitedDate[1])} 
+                                        as we are currently on ${getNameOfMonth(now[1])}`);
                         } else {
                             if (!(validateDay(splitedDate))) {
-                                error.push("<span class='text-muted'><i><u>" + splitedDate[2] + "</u></i></span> is not valid. You can\'t book for the " + splitedDate[2] + " of " + getNameOfMonth(now[1]) + " as today is the " + now[2] + " of " + getNameOfMonth(now[1]));
+                                error.push(`<span class='text-muted'>
+                                                <i><u>${splitedDate[2]}</u></i>
+                                            </span> is not valid. You can&#39;t book for the ${splitedDate[2]} of ${getNameOfMonth(now[1])} 
+                                            as today is the ${now[2]} of ${getNameOfMonth(now[1])}`);
                             }
                         }
                     }
@@ -210,27 +220,48 @@
                     error.push("Please, fill the check out date field");
                 } else {
                     if (!(validateDate(checkOutDate))) {
-                        error.push("<span class='text-muted'><i><u>" + checkOutDate + "</u></i></span> is not valid. Please, put your date as \"YYYY&dash;MM&dash;DD\" or the year should be in 2017 or 2018");
+                        error.push(`<span class='text-muted'>
+                                        <i><u>${checkOutDate}</u></i>
+                                    </span> is not valid. Please, put your date as "YYYY&dash;MM&dash;DD" 
+                                    or the year should be in 2017 or 2018`);
                     } else {
                         let splitedDate = splitDate(checkOutDate),
                             splitedcheckInDate = splitDate(checkInDate),
                             now = getTodaysDate();
+
                         if (!(validateMonth(splitedDate))) {
-                            error.push("<span class='text-muted'><i><u>" + splitedDate[1] + "</u></i></span> is not valid. Your check-out can\'t be on " + getNameOfMonth(splitedDate[1]) + " as we are currently on " + getNameOfMonth(now[1]));
+                            error.push(`<span class='text-muted'>
+                                            <i><u>${splitedDate[1]}</u></i>
+                                        </span> is not valid. Your check-out can&#39;t be on ${getNameOfMonth(splitedDate[1])}
+                                        as we are currently on ${getNameOfMonth(now[1])}`);
                         } else if (!(validateDay(splitedDate))) {
-                            error.push("<span class='text-muted'><i><u>" + splitedDate[2] + "</u></i></span> is not valid. Your check-out day can\'t be for the " + splitedDate[2] + " of " + getNameOfMonth(splitedDate[1]) + " as today is the " + now[2] + " of " + getNameOfMonth(now[1]));
+                            error.push(`<span class='text-muted'>
+                                            <i><u>${splitedDate[2]}</u></i>
+                                        </span> is not valid. Your check-out day can&#39;t be for the ${splitedDate[2]} of ${getNameOfMonth(splitedDate[1])}
+                                         as today is the ${now[2]} of ${getNameOfMonth(now[1])}`);
                         } else if (!(validateCheckoutMonth(splitedcheckInDate, splitedDate))) {
-                            error.push("<span class='text-muted'><i><u>" + splitedDate[1] + "</u></i></span> is not valid. Your check-out can\'t be on " + getNameOfMonth(splitedDate[1]) + " " + splitedDate[0] + " while your check-In is on " + getNameOfMonth(splitedcheckInDate[1]) + " " + splitedcheckInDate[0]);
+                            error.push(`<span class='text-muted'>
+                                            <i><u>${splitedDate[1]}</u></i>
+                                        </span> is not valid. Your check-out can&#39;t be on ${getNameOfMonth(splitedDate[1])} ${splitedDate[0]}
+                                        while your check-In is on ${getNameOfMonth(splitedcheckInDate[1])} ${splitedcheckInDate[0]}`);
                         } else if (!(validateCheckoutDay(splitedcheckInDate, splitedDate))) {
-                            error.push("<span class='text-muted'><i><u>" + splitedDate[2] + "</u></i></span> is not valid. Your check-out day can\'t be on " + splitedDate[2] + " of " + getNameOfMonth(splitedDate[1]) + " as your check-In date is on the " + splitedcheckInDate[2] + " of " + getNameOfMonth(splitedcheckInDate[1]));
+                            error.push(`<span class='text-muted'>
+                                            <i><u>${splitedDate[2]}</u></i>
+                                        </span> is not valid. Your check-out day can&#39;t be on ${splitedDate[2]} of ${getNameOfMonth(splitedDate[1])} 
+                                        as your check-In date is on the ${splitedcheckInDate[2]} of ${getNameOfMonth(splitedcheckInDate[1])}`);
                         }
                     }
 
                 }
                 //if there is error display it as a list
                 if (error.length > 0) {
-                    error.forEach(element => {
-                        $('#error').append(`<li class="text-danger"><span class="text-primary">&mdash;&nbsp;</span>${element}</li>`)
+                    error.forEach(errorMessage => {
+                        $('#error').append(`<li class = "text-danger"> 
+                                                <span class = "text-primary" > 
+                                                    &mdash; &nbsp; 
+                                                </span>
+                                                ${errorMessage}
+                                            </li> `);
                     })
                 } else {
                     $.ajax({
